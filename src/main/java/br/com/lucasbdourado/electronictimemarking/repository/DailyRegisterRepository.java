@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface DailyRegisterRepository extends JpaRepository<@NonNull DailyRegister,@NonNull Long> {
-    Optional<DailyRegister> findByAuthorAndRegisterDate(Author author, LocalDate registerDate);
+public interface DailyRegisterRepository extends JpaRepository<@NonNull DailyRegister, @NonNull Long>
+{
+	Optional<DailyRegister> findByAuthorAndRegisterDate(Author author, LocalDate registerDate);
 }

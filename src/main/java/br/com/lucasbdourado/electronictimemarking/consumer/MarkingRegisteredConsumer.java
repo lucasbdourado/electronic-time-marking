@@ -9,15 +9,16 @@ import static br.com.lucasbdourado.electronictimemarking.configuration.RabbitMQC
 @Component
 public class MarkingRegisteredConsumer
 {
-    private final DailyRegisterService dailyRegisterService;
+	private final DailyRegisterService dailyRegisterService;
 
-    public MarkingRegisteredConsumer(DailyRegisterService dailyRegisterService) {
-        this.dailyRegisterService = dailyRegisterService;
-    }
+	public MarkingRegisteredConsumer(DailyRegisterService dailyRegisterService)
+	{
+		this.dailyRegisterService = dailyRegisterService;
+	}
 
-    @RabbitListener(queues = MARKING_REGISTER_QUEUE)
-    public void consume(TimeMarkRegisteredEvent event)
-    {
-        dailyRegisterService.create(event);
-    }
+	@RabbitListener(queues = MARKING_REGISTER_QUEUE)
+	public void consume(TimeMarkRegisteredEvent event)
+	{
+		dailyRegisterService.create(event);
+	}
 }

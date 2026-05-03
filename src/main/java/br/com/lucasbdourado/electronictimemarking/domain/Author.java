@@ -3,49 +3,57 @@ package br.com.lucasbdourado.electronictimemarking.domain;
 import jakarta.persistence.*;
 
 @Entity
-public class Author {
+public class Author
+{
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Column(nullable = false, unique = true)
+	private Long discordId;
 
-    @Column(nullable = false, unique = true)
-    private Long discordId;
+	@Column(unique = true)
+	private String code;
 
-    @Column(unique = true)
-    private String code;
+	private String name;
 
-    private String name;
+	public Long getId()
+	{
+		return id;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Long getDiscordId()
+	{
+		return discordId;
+	}
 
-    public Long getDiscordId() {
-        return discordId;
-    }
+	public void setDiscordId(Long discordId)
+	{
+		this.discordId = discordId;
+	}
 
-    public void setDiscordId(Long discordId) {
-        this.discordId = discordId;
-    }
+	public String getCode()
+	{
+		return code;
+	}
 
-    public String getCode() {
-        return code;
-    }
+	public void setCode(String code)
+	{
+		this.code = code;
+	}
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+	public String getName()
+	{
+		return name;
+	}
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 }

@@ -8,8 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface AuthorRepository extends JpaRepository<@NonNull Author, @NonNull Long> {
-    Optional<Author> findByCode(String code);
+public interface AuthorRepository extends JpaRepository<@NonNull Author, @NonNull Long>
+{
+	Optional<Author> findByCode(String code);
 
-    Optional<Author> findByDiscordId(Long discordId);
+	Optional<Author> findByDiscordId(Long discordId);
 }

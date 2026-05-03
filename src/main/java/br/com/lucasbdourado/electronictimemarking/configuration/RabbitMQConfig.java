@@ -13,31 +13,32 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMQConfig {
+public class RabbitMQConfig
+{
 
-    @Bean
-    public DirectExchange markingRegisterExchange() {
-        return new DirectExchange(MARKING_REGISTER_EXCHANGE);
-    }
+	@Bean
+	public DirectExchange markingRegisterExchange()
+	{
+		return new DirectExchange(MARKING_REGISTER_EXCHANGE);
+	}
 
-    @Bean
-    public Queue markingRegisterQueue() {
-        return new Queue(MARKING_REGISTER_QUEUE, true);
-    }
+	@Bean
+	public Queue markingRegisterQueue()
+	{
+		return new Queue(MARKING_REGISTER_QUEUE, true);
+	}
 
-    @Bean
-    public Binding markingRegisterBinding(
-            Queue markingRegisterQueue,
-            DirectExchange markingRegisterExchange
-    ) {
-        return BindingBuilder
-                .bind(markingRegisterQueue)
-                .to(markingRegisterExchange)
-                .with(MARKING_REGISTER_ROUTING_KEY);
-    }
+	@Bean
+	public Binding markingRegisterBinding(Queue markingRegisterQueue,
+		DirectExchange markingRegisterExchange)
+	{
+		return BindingBuilder.bind(markingRegisterQueue).to(markingRegisterExchange)
+			.with(MARKING_REGISTER_ROUTING_KEY);
+	}
 
-    @Bean
-    public JacksonJsonMessageConverter jsonMessageConverter() {
-        return new JacksonJsonMessageConverter();
-    }
+	@Bean
+	public JacksonJsonMessageConverter jsonMessageConverter()
+	{
+		return new JacksonJsonMessageConverter();
+	}
 }

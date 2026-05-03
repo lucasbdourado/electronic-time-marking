@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TimeMarkRepository extends JpaRepository<@NonNull TimeMark,@NonNull Long> {
+public interface TimeMarkRepository extends JpaRepository<@NonNull TimeMark, @NonNull Long>
+{
 }
