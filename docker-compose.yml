@@ -7,10 +7,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: electronic-time-marking
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_ROOT_HOSTS: "%"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "1"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - time-tracking-network
 
 volumes:
   mysql_data:
+
+networks:
+  time-tracking-network:
+    name: time-tracking-network
