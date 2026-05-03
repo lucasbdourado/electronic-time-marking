@@ -52,4 +52,9 @@ public class DailyRegister {
     public void setMarks(List<TimeMark> marks) {
         this.marks = marks;
     }
+
+    public void addMark(TimeMark mark) {
+        mark.setDailyRegister(this);
+        this.marks.add(mark);
+    }
 }

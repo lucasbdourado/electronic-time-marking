@@ -1,5 +1,6 @@
 package br.com.lucasbdourado.electronictimemarking.consumer;
 
+import br.com.lucasbdourado.electronictimemarking.service.DailyRegisterService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -8,13 +9,15 @@ import static br.com.lucasbdourado.electronictimemarking.configuration.RabbitMQC
 @Component
 public class MarkingRegisteredConsumer
 {
+    private final DailyRegisterService dailyRegisterService;
+
+    public MarkingRegisteredConsumer(DailyRegisterService dailyRegisterService) {
+        this.dailyRegisterService = dailyRegisterService;
+    }
+
     @RabbitListener(queues = MARKING_REGISTER_QUEUE)
     public void consume(TimeMarkRegisteredEvent event)
     {
-        System.out.println("Mensagem recebida do RabbitMQ:");
-        System.out.println("Autor: " + event.author());
-        System.out.println("Canal: " + event.channelId());
-        System.out.println("Tipo: " + event.type());
-        System.out.println("Horário: " + event.registeredAt());
+        dailyRegisterService.create(event);
     }
 }
