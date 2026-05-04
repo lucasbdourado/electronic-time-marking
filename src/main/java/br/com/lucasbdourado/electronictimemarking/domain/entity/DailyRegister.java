@@ -1,4 +1,4 @@
-package br.com.lucasbdourado.electronictimemarking.domain;
+package br.com.lucasbdourado.electronictimemarking.domain.entity;
 
 import jakarta.persistence.*;
 

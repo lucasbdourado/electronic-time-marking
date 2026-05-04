@@ -1,8 +1,8 @@
-package br.com.lucasbdourado.electronictimemarking.configuration;
+package br.com.lucasbdourado.electronictimemarking.infrastructure.configuration;
 
-import static br.com.lucasbdourado.electronictimemarking.configuration.RabbitMQConstants.MARKING_REGISTER_EXCHANGE;
-import static br.com.lucasbdourado.electronictimemarking.configuration.RabbitMQConstants.MARKING_REGISTER_QUEUE;
-import static br.com.lucasbdourado.electronictimemarking.configuration.RabbitMQConstants.MARKING_REGISTER_ROUTING_KEY;
+import static br.com.lucasbdourado.electronictimemarking.infrastructure.configuration.RabbitMQConstants.MARKING_REGISTER_EXCHANGE;
+import static br.com.lucasbdourado.electronictimemarking.infrastructure.configuration.RabbitMQConstants.MARKING_REGISTER_QUEUE;
+import static br.com.lucasbdourado.electronictimemarking.infrastructure.configuration.RabbitMQConstants.MARKING_REGISTER_ROUTING_KEY;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

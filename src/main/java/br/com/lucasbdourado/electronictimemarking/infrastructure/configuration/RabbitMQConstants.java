@@ -1,4 +1,4 @@
-package br.com.lucasbdourado.electronictimemarking.configuration;
+package br.com.lucasbdourado.electronictimemarking.infrastructure.configuration;
 
 public class RabbitMQConstants
 {

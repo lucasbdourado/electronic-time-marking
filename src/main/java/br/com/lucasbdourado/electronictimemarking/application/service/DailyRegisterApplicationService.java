@@ -1,56 +1,57 @@
-package br.com.lucasbdourado.electronictimemarking.service;
+package br.com.lucasbdourado.electronictimemarking.application.service;
 
-import br.com.lucasbdourado.electronictimemarking.consumer.TimeMarkRegisteredEvent;
-import br.com.lucasbdourado.electronictimemarking.domain.Author;
-import br.com.lucasbdourado.electronictimemarking.domain.DailyRegister;
-import br.com.lucasbdourado.electronictimemarking.domain.TimeMark;
-import br.com.lucasbdourado.electronictimemarking.repository.AuthorRepository;
-import br.com.lucasbdourado.electronictimemarking.repository.DailyRegisterRepository;
+import br.com.lucasbdourado.electronictimemarking.domain.entity.Author;
+import br.com.lucasbdourado.electronictimemarking.domain.entity.DailyRegister;
+import br.com.lucasbdourado.electronictimemarking.domain.entity.TimeMark;
+import br.com.lucasbdourado.electronictimemarking.domain.repository.AuthorRepository;
+import br.com.lucasbdourado.electronictimemarking.domain.repository.DailyRegisterRepository;
+import br.com.lucasbdourado.electronictimemarking.infrastructure.messaging.consumer.TimeMarkRegisteredEvent;
 import jakarta.transaction.Transactional;
+import java.sql.Time;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 @Service
-public class DailyRegisterService
+public class DailyRegisterApplicationService
 {
 
 	private final AuthorRepository authorRepository;
 
 	private final DailyRegisterRepository repository;
 
-	public DailyRegisterService(AuthorRepository authorRepository, DailyRegisterRepository repository)
+	public DailyRegisterApplicationService(AuthorRepository authorRepository, DailyRegisterRepository repository)
 	{
 		this.authorRepository = authorRepository;
 		this.repository = repository;
 	}
 
 	@Transactional
-	public void create(TimeMarkRegisteredEvent timeMarkRegisteredEvent)
+	public void create(TimeMarkRegisteredEvent event)
 	{
-		if (timeMarkRegisteredEvent.author() == null)
+		if (event.author() == null)
 		{
 			throw new RuntimeException("O author da mensagem não pode ser nulo");
 		}
 
-		if (timeMarkRegisteredEvent.type() == null)
+		if (event.type() == null)
 		{
 			throw new RuntimeException("O tipo do registro não pode ser nulo");
 		}
 
-		if (timeMarkRegisteredEvent.registeredAt() == null)
+		if (event.registeredAt() == null)
 		{
 			throw new RuntimeException("O horário do registro não pode ser nulo");
 		}
 
-		Author author = findOrCreateAuthor(timeMarkRegisteredEvent.author());
+		Author author = findOrCreateAuthor(event.author());
 
 		DailyRegister dailyRegister = findOrCreateDailyRegister(author,
-			timeMarkRegisteredEvent.registeredAt().toLocalDate());
+			event.registeredAt().toLocalDate());
 
 		TimeMark timeMark = new TimeMark();
-		timeMark.setType(timeMarkRegisteredEvent.type());
-		timeMark.setMarkedAt(timeMarkRegisteredEvent.registeredAt().toLocalTime());
+		timeMark.setType(event.type());
+		timeMark.setMarkedAt(event.registeredAt().toLocalTime());
 
 		dailyRegister.addMark(timeMark);
 
