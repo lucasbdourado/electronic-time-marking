@@ -5,6 +5,7 @@ import br.com.lucasbdourado.electronictimemarking.domain.service.WorkDayCalculat
 import br.com.lucasbdourado.electronictimemarking.domain.service.WorkStatus;
 import br.com.lucasbdourado.electronictimemarking.domain.valueobject.WorkPeriod;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class CalculateWorkDayUseCase
 		this.calculator = calculator;
 	}
 
-	public WorkDayResponse process(List<?> timeList)
+	public WorkDayResponse process(LocalDate date, List<?> timeList)
 	{
 		List<LocalTime> times = parseTimes(timeList);
 
@@ -39,6 +40,7 @@ public class CalculateWorkDayUseCase
 
 		WorkDayResponse response = new WorkDayResponse();
 
+		response.setDate(date);
 		response.setTimes(normalized);
 		response.setWorkedMinutes(worked.toMinutes());
 		response.setRemainingMinutes(remaining.toMinutes());

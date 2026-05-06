@@ -10,6 +10,7 @@ import br.com.lucasbdourado.electronictimemarking.domain.repository.AuthorReposi
 import br.com.lucasbdourado.electronictimemarking.domain.repository.DailyRegisterRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -56,16 +57,24 @@ public class DailyRegisterApplicationService
 
 		TimeMark timeMark = new TimeMark();
 		timeMark.setType(command.type());
-		timeMark.setMarkedAt(command.registeredAt().toLocalTime());
+
+		LocalDateTime localDateTime = command.registeredAt();
+
+		timeMark.setMarkedAt(localDateTime.toLocalTime());
 
 		dailyRegister.addMark(timeMark);
 
 		repository.save(dailyRegister);
 
+		if(dailyRegister.getMarks().isEmpty() || dailyRegister.getMarks().size() < 3)
+		{
+			return new WorkDayResponse();
+		}
+
 		List<LocalTime> markListTime = dailyRegister.getMarks().stream().map(TimeMark::getMarkedAt)
 			.toList();
 
-		return calculateWorkDayUseCase.process(markListTime);
+		return calculateWorkDayUseCase.process(dailyRegister.getRegisterDate(), markListTime);
 	}
 
 	private Author findOrCreateAuthor(Author eventAuthor)
