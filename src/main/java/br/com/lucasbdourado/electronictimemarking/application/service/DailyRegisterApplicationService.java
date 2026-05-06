@@ -1,61 +1,71 @@
 package br.com.lucasbdourado.electronictimemarking.application.service;
 
+import br.com.lucasbdourado.electronictimemarking.application.dto.RegisterTimeMarkCommand;
+import br.com.lucasbdourado.electronictimemarking.application.dto.WorkDayResponse;
+import br.com.lucasbdourado.electronictimemarking.application.usecase.CalculateWorkDayUseCase;
 import br.com.lucasbdourado.electronictimemarking.domain.entity.Author;
 import br.com.lucasbdourado.electronictimemarking.domain.entity.DailyRegister;
 import br.com.lucasbdourado.electronictimemarking.domain.entity.TimeMark;
 import br.com.lucasbdourado.electronictimemarking.domain.repository.AuthorRepository;
 import br.com.lucasbdourado.electronictimemarking.domain.repository.DailyRegisterRepository;
-import br.com.lucasbdourado.electronictimemarking.infrastructure.messaging.consumer.TimeMarkRegisteredEvent;
 import jakarta.transaction.Transactional;
-import java.sql.Time;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DailyRegisterApplicationService
 {
+	private final CalculateWorkDayUseCase calculateWorkDayUseCase;
 
 	private final AuthorRepository authorRepository;
 
 	private final DailyRegisterRepository repository;
 
-	public DailyRegisterApplicationService(AuthorRepository authorRepository, DailyRegisterRepository repository)
+	public DailyRegisterApplicationService(AuthorRepository authorRepository,
+		DailyRegisterRepository repository, CalculateWorkDayUseCase calculateWorkDayUseCase)
 	{
 		this.authorRepository = authorRepository;
 		this.repository = repository;
+		this.calculateWorkDayUseCase = calculateWorkDayUseCase;
 	}
 
 	@Transactional
-	public void create(TimeMarkRegisteredEvent event)
+	public WorkDayResponse create(RegisterTimeMarkCommand command)
 	{
-		if (event.author() == null)
+		if (command.author() == null)
 		{
-			throw new RuntimeException("O author da mensagem não pode ser nulo");
+			throw new RuntimeException("O author da mensagem nao pode ser nulo");
 		}
 
-		if (event.type() == null)
+		if (command.type() == null)
 		{
-			throw new RuntimeException("O tipo do registro não pode ser nulo");
+			throw new RuntimeException("O tipo do registro nao pode ser nulo");
 		}
 
-		if (event.registeredAt() == null)
+		if (command.registeredAt() == null)
 		{
-			throw new RuntimeException("O horário do registro não pode ser nulo");
+			throw new RuntimeException("O horario do registro nao pode ser nulo");
 		}
 
-		Author author = findOrCreateAuthor(event.author());
+		Author author = findOrCreateAuthor(command.author());
 
 		DailyRegister dailyRegister = findOrCreateDailyRegister(author,
-			event.registeredAt().toLocalDate());
+			command.registeredAt().toLocalDate());
 
 		TimeMark timeMark = new TimeMark();
-		timeMark.setType(event.type());
-		timeMark.setMarkedAt(event.registeredAt().toLocalTime());
+		timeMark.setType(command.type());
+		timeMark.setMarkedAt(command.registeredAt().toLocalTime());
 
 		dailyRegister.addMark(timeMark);
 
 		repository.save(dailyRegister);
+
+		List<LocalTime> markListTime = dailyRegister.getMarks().stream().map(TimeMark::getMarkedAt)
+			.toList();
+
+		return calculateWorkDayUseCase.process(markListTime);
 	}
 
 	private Author findOrCreateAuthor(Author eventAuthor)

@@ -1,48 +1,50 @@
 package br.com.lucasbdourado.electronictimemarking.domain.service;
 
-import br.com.lucasbdourado.electronictimemarking.domain.valueobject.WorkInterval;
+import br.com.lucasbdourado.electronictimemarking.domain.valueobject.WorkPeriod;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WorkDayCalculator
 {
 	private static final Duration DAILY_GOAL = Duration.ofHours(8).plusMinutes(45);
 
-	private List<LocalTime> parseTimeMarks(List<String> times)
+	public List<LocalTime> convertToLocalTime(List<String> times)
 	{
 		return times.stream().map(LocalTime::parse).toList();
 	}
 
-	private List<LocalTime> sortTimeMarks(List<LocalTime> times)
+	public List<LocalTime> normalize(List<LocalTime> times)
 	{
 		return times.stream().sorted().toList();
 	}
 
-	private List<WorkInterval> buildIntervals(List<LocalTime> times)
+	public List<WorkPeriod> buildPeriods(List<LocalTime> times)
 	{
-		List<WorkInterval> intervals = new ArrayList<>();
+		List<WorkPeriod> periods = new ArrayList<>();
 
 		for (int i = 0; i < times.size() - 1; i += 2)
 		{
-			intervals.add(new WorkInterval(times.get(i), times.get(i + 1)));
+			periods.add(new WorkPeriod(times.get(i), times.get(i + 1)));
 		}
 
-		return intervals;
+		return periods;
 	}
 
-	private Duration calculateWorkedTime(List<WorkInterval> intervals)
+	public Duration calculateWorkedTime(List<WorkPeriod> periods)
 	{
-		return intervals.stream().map(WorkInterval::getDuration).reduce(Duration.ZERO, Duration::plus);
+		return periods.stream().map(WorkPeriod::getDuration).reduce(Duration.ZERO, Duration::plus);
 	}
 
-	private Duration calculateRemainingTime(Duration worked)
+	public Duration calculateRemainingTime(Duration worked)
 	{
 		return DAILY_GOAL.minus(worked);
 	}
 
-	private LocalTime calculateExit(List<LocalTime> times, Duration remaining)
+	public LocalTime calculateExit(List<LocalTime> times, Duration remaining)
 	{
 		boolean isOpen = times.size() % 2 != 0;
 
@@ -56,40 +58,48 @@ public class WorkDayCalculator
 		return lastEntry.plus(remaining);
 	}
 
-	private WorkStatus determineStatus(List<LocalTime> times, Duration worked, List<WorkInterval> intervals)
+	public WorkStatus determineStatus(List<LocalTime> times, Duration worked, List<WorkPeriod> periods)
 	{
-		boolean isOpen = times.size() % 2 != 0;
-
-		if (isOpen)
+		if (times.isEmpty())
 		{
-			return WorkStatus.IN_PROGRESS;
+			return WorkStatus.EMPTY;
 		}
 
-		if (worked.compareTo(DAILY_GOAL) >= 0)
+		if (isInvalidClosedDay(times, periods))
 		{
-			return WorkStatus.COMPLETE;
+			return WorkStatus.INVALID;
+		}
+
+		if (times.size() % 2 != 0)
+		{
+			return WorkStatus.OPEN;
+		}
+
+		if (!calculateRemainingTime(worked).isPositive())
+		{
+			return WorkStatus.COMPLETED;
 		}
 
 		return WorkStatus.INCOMPLETE;
 	}
 
-	private boolean isInvalidClosedDay(List<LocalTime> times, List<WorkInterval> intervals)
+	public boolean isInvalidClosedDay(List<LocalTime> times, List<WorkPeriod> periods)
 	{
 		boolean isEven = times.size() % 2 == 0;
 		boolean hasMinimum = times.size() >= 4;
 
-		boolean hasAnchorInterval = hasAnchorInterval(intervals);
+		boolean hasAnchorInterval = hasAnchorInterval(periods);
 
 		return isEven && hasMinimum && !hasAnchorInterval;
 	}
 
-	private boolean hasAnchorInterval(List<WorkInterval> intervals)
+	private boolean hasAnchorInterval(List<WorkPeriod> periods)
 	{
-		for (int i = 0; i < intervals.size() - 1; i++)
+		for (int i = 0; i < periods.size() - 1; i++)
 		{
 
-			WorkInterval current = intervals.get(i);
-			WorkInterval next = intervals.get(i + 1);
+			WorkPeriod current = periods.get(i);
+			WorkPeriod next = periods.get(i + 1);
 
 			long minutes = Duration.between(current.end(), next.start()).toMinutes();
 
@@ -100,10 +110,5 @@ public class WorkDayCalculator
 		}
 
 		return false;
-	}
-
-	private enum WorkStatus
-	{
-		IN_PROGRESS, COMPLETE, INCOMPLETE
 	}
 }

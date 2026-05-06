@@ -1,6 +1,9 @@
 package br.com.lucasbdourado.electronictimemarking.infrastructure.messaging.consumer;
 
+import br.com.lucasbdourado.electronictimemarking.application.dto.RegisterTimeMarkCommand;
+import br.com.lucasbdourado.electronictimemarking.application.dto.WorkDayResponse;
 import br.com.lucasbdourado.electronictimemarking.application.service.DailyRegisterApplicationService;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +20,18 @@ public class MarkingRegisteredConsumer
 	}
 
 	@RabbitListener(queues = MARKING_REGISTER_QUEUE)
-	public void consume(TimeMarkRegisteredEvent event)
+	public WorkDayResponse consume(TimeMarkRegisteredEvent event, Message message)
 	{
-		dailyRegisterApplicationService.create(event);
+		RegisterTimeMarkCommand command = new RegisterTimeMarkCommand(event.author(), event.type(),
+			event.registeredAt());
+
+		WorkDayResponse response = dailyRegisterApplicationService.create(command);
+
+		if (message.getMessageProperties().getReplyTo() == null)
+		{
+			return null;
+		}
+
+		return response;
 	}
 }
