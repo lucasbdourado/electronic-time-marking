@@ -10,7 +10,7 @@
     </parent>
     <groupId>br.com.lucasbdourado</groupId>
     <artifactId>electronic-time-marking</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <name>electronic-time-marking</name>
     <description>electronic-time-marking</description>
     <url/>
