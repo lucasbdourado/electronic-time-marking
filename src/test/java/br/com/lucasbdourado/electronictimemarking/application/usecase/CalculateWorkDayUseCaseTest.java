@@ -8,18 +8,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import br.com.lucasbdourado.electronictimemarking.application.dto.WorkDayResponse;
 import br.com.lucasbdourado.electronictimemarking.domain.service.WorkDayCalculator;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class CalculateWorkDayUseCaseTest
 {
+	private static final LocalDate WORK_DAY = LocalDate.of(2026, 5, 6);
+
 	private final CalculateWorkDayUseCase useCase = new CalculateWorkDayUseCase(new WorkDayCalculator());
 
 	@Test
 	void shouldCalculateOpenWorkDay()
 	{
-		WorkDayResponse response = useCase.process(List.of(
+		WorkDayResponse response = useCase.process(WORK_DAY, List.of(
 			LocalTime.of(8, 0),
 			LocalTime.of(12, 0),
 			LocalTime.of(13, 0)
@@ -36,7 +39,7 @@ class CalculateWorkDayUseCaseTest
 	@Test
 	void shouldCalculateOpenWorkDayFromStringTimes()
 	{
-		WorkDayResponse response = useCase.process(List.of("08:00", "12:00", "13:00"));
+		WorkDayResponse response = useCase.process(WORK_DAY, List.of("08:00", "12:00", "13:00"));
 
 		assertEquals(List.of(LocalTime.of(8, 0), LocalTime.of(12, 0), LocalTime.of(13, 0)), response.getTimes());
 		assertEquals(240, response.getWorkedMinutes());
@@ -49,7 +52,7 @@ class CalculateWorkDayUseCaseTest
 	@Test
 	void shouldCalculateCompletedClosedWorkDay()
 	{
-		WorkDayResponse response = useCase.process(List.of(
+		WorkDayResponse response = useCase.process(WORK_DAY, List.of(
 			LocalTime.of(8, 0),
 			LocalTime.of(12, 0),
 			LocalTime.of(13, 0),
@@ -66,7 +69,7 @@ class CalculateWorkDayUseCaseTest
 	@Test
 	void shouldFlagInvalidClosedDayWithoutLunchAnchor()
 	{
-		WorkDayResponse response = useCase.process(List.of(
+		WorkDayResponse response = useCase.process(WORK_DAY, List.of(
 			LocalTime.of(8, 0),
 			LocalTime.of(10, 0),
 			LocalTime.of(10, 30),
@@ -80,6 +83,6 @@ class CalculateWorkDayUseCaseTest
 	@Test
 	void shouldRejectUnsupportedTimeType()
 	{
-		assertThrows(IllegalArgumentException.class, () -> useCase.process(List.of(8)));
+		assertThrows(IllegalArgumentException.class, () -> useCase.process(WORK_DAY, List.of(8)));
 	}
 }
