@@ -3,16 +3,17 @@ package br.com.lucasbdourado.electronictimemarking.infrastructure.messaging.prod
 import static br.com.lucasbdourado.electronictimemarking.infrastructure.configuration.RabbitMQConstants.REMINDER_EVENTS_EXCHANGE;
 import static br.com.lucasbdourado.electronictimemarking.infrastructure.configuration.RabbitMQConstants.WORKDAY_REMINDER_NOTIFICATION_ROUTING_KEY;
 
+import br.com.lucasbdourado.electronictimemarking.application.service.WorkDayReminderNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WorkDayReminderNotificationPublisher
+public class WorkDayReminderNotificationPublisher implements WorkDayReminderNotifier
 {
-	private static final Logger LOGGER =
-		LoggerFactory.getLogger(WorkDayReminderNotificationPublisher.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(
+		WorkDayReminderNotificationPublisher.class);
 
 	private final RabbitTemplate rabbitTemplate;
 
@@ -21,10 +22,11 @@ public class WorkDayReminderNotificationPublisher
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
-	public void publish(String discordUserId, String message)
+	@Override
+	public void notify(String discordUserId, String message)
 	{
-		WorkDayReminderNotificationEvent event =
-			new WorkDayReminderNotificationEvent(discordUserId, message);
+		WorkDayReminderNotificationEvent event = new WorkDayReminderNotificationEvent(discordUserId,
+			message);
 
 		rabbitTemplate.convertAndSend(REMINDER_EVENTS_EXCHANGE,
 			WORKDAY_REMINDER_NOTIFICATION_ROUTING_KEY, event);

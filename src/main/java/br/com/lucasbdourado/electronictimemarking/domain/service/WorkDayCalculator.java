@@ -5,17 +5,10 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Component;
 
-@Component
 public class WorkDayCalculator
 {
 	private static final Duration DAILY_GOAL = Duration.ofHours(8).plusMinutes(45);
-
-	public List<LocalTime> convertToLocalTime(List<String> times)
-	{
-		return times.stream().map(LocalTime::parse).toList();
-	}
 
 	public List<LocalTime> normalize(List<LocalTime> times)
 	{

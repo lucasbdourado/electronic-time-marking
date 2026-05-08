@@ -1,5 +1,6 @@
 package br.com.lucasbdourado.electronictimemarking.application.service;
 
+import br.com.lucasbdourado.electronictimemarking.application.dto.CalculateWorkDayCommand;
 import br.com.lucasbdourado.electronictimemarking.application.dto.RegisterTimeMarkCommand;
 import br.com.lucasbdourado.electronictimemarking.application.dto.WorkDayResponse;
 import br.com.lucasbdourado.electronictimemarking.application.usecase.CalculateWorkDayUseCase;
@@ -35,38 +36,34 @@ public class DailyRegisterApplicationService
 	@Transactional
 	public WorkDayResponse create(RegisterTimeMarkCommand command)
 	{
-		if (command.author() == null)
+		if (command.authorDiscordId() == null)
 		{
-			throw new RuntimeException("O author da mensagem nao pode ser nulo");
+			throw new IllegalArgumentException("O discordId do author da mensagem nao pode ser nulo");
 		}
 
 		if (command.type() == null)
 		{
-			throw new RuntimeException("O tipo do registro nao pode ser nulo");
+			throw new IllegalArgumentException("O tipo do registro nao pode ser nulo");
 		}
 
 		if (command.registeredAt() == null)
 		{
-			throw new RuntimeException("O horario do registro nao pode ser nulo");
+			throw new IllegalArgumentException("O horario do registro nao pode ser nulo");
 		}
 
-		Author author = findOrCreateAuthor(command.author());
+		Author author = findOrCreateAuthor(command);
 
 		DailyRegister dailyRegister = findOrCreateDailyRegister(author,
 			command.registeredAt().toLocalDate());
 
-		TimeMark timeMark = new TimeMark();
-		timeMark.setType(command.type());
-
 		LocalDateTime localDateTime = command.registeredAt();
-
-		timeMark.setMarkedAt(localDateTime.toLocalTime());
+		TimeMark timeMark = new TimeMark(command.type(), localDateTime.toLocalTime());
 
 		dailyRegister.addMark(timeMark);
 
 		repository.save(dailyRegister);
 
-		if(dailyRegister.getMarks().isEmpty() || dailyRegister.getMarks().size() < 3)
+		if (!dailyRegister.hasEnoughMarksToCalculate())
 		{
 			return new WorkDayResponse();
 		}
@@ -74,26 +71,22 @@ public class DailyRegisterApplicationService
 		List<LocalTime> markListTime = dailyRegister.getMarks().stream().map(TimeMark::getMarkedAt)
 			.toList();
 
-		return calculateWorkDayUseCase.process(dailyRegister.getRegisterDate(), markListTime);
+		return calculateWorkDayUseCase.process(
+			new CalculateWorkDayCommand(dailyRegister.getRegisterDate(), markListTime));
 	}
 
-	private Author findOrCreateAuthor(Author eventAuthor)
+	private Author findOrCreateAuthor(RegisterTimeMarkCommand command)
 	{
-		return authorRepository.findByCode(eventAuthor.getCode()).map(author -> {
-			author.setDiscordId(eventAuthor.getDiscordId());
-			author.setCode(eventAuthor.getCode());
-			author.setName(eventAuthor.getName());
+		return authorRepository.findByDiscordId(command.authorDiscordId()).map(author -> {
+			author.updateProfile(command.authorCode(), command.authorName());
 			return author;
-		}).orElseGet(() -> authorRepository.save(eventAuthor));
+		}).orElseGet(() -> authorRepository.save(
+			new Author(command.authorDiscordId(), command.authorCode(), command.authorName())));
 	}
 
 	private DailyRegister findOrCreateDailyRegister(Author author, LocalDate registerDate)
 	{
-		return repository.findByAuthorAndRegisterDate(author, registerDate).orElseGet(() -> {
-			DailyRegister dailyRegister = new DailyRegister();
-			dailyRegister.setAuthor(author);
-			dailyRegister.setRegisterDate(registerDate);
-			return dailyRegister;
-		});
+		return repository.findByAuthorAndRegisterDate(author, registerDate)
+			.orElseGet(() -> new DailyRegister(author, registerDate));
 	}
 }

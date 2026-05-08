@@ -19,6 +19,26 @@ public class TimeMark
 	@Enumerated(EnumType.STRING)
 	private RegisterType type;
 
+	protected TimeMark()
+	{
+	}
+
+	public TimeMark(RegisterType type, LocalTime markedAt)
+	{
+		if (type == null)
+		{
+			throw new IllegalArgumentException("O tipo do registro nao pode ser nulo");
+		}
+
+		if (markedAt == null)
+		{
+			throw new IllegalArgumentException("O horario do registro nao pode ser nulo");
+		}
+
+		this.type = type;
+		this.markedAt = markedAt;
+	}
+
 	public void setId(Long id)
 	{
 		this.id = id;

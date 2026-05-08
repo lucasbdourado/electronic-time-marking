@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -20,6 +21,24 @@ public class DailyRegister
 
 	@OneToMany(mappedBy = "dailyRegister", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TimeMark> marks = new ArrayList<>();
+
+	protected DailyRegister()
+	{
+	}
+
+	public DailyRegister(Author author, LocalDate registerDate)
+	{
+		if (author == null)
+		{
+			throw new IllegalArgumentException("O author do registro diario nao pode ser nulo");
+		}
+		if (registerDate == null)
+		{
+			throw new IllegalArgumentException("A data do registro diario nao pode ser nula");
+		}
+		this.author = author;
+		this.registerDate = registerDate;
+	}
 
 	public Long getId()
 	{
@@ -53,7 +72,7 @@ public class DailyRegister
 
 	public List<TimeMark> getMarks()
 	{
-		return marks;
+		return Collections.unmodifiableList(marks);
 	}
 
 	public void setMarks(List<TimeMark> marks)
@@ -63,7 +82,16 @@ public class DailyRegister
 
 	public void addMark(TimeMark mark)
 	{
+		if (mark == null)
+		{
+			throw new IllegalArgumentException("A marcacao nao pode ser nula");
+		}
 		mark.setDailyRegister(this);
 		this.marks.add(mark);
+	}
+
+	public boolean hasEnoughMarksToCalculate()
+	{
+		return marks.size() >= 3;
 	}
 }

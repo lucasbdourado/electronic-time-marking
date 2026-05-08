@@ -17,6 +17,22 @@ public class Author
 
 	private String name;
 
+	protected Author()
+	{
+	}
+
+	public Author(Long discordId, String code, String name)
+	{
+		if (discordId == null)
+		{
+			throw new IllegalArgumentException("O discordId do author nao pode ser nulo");
+		}
+
+		this.discordId = discordId;
+		this.code = code;
+		this.name = name;
+	}
+
 	public Long getId()
 	{
 		return id;
@@ -54,6 +70,12 @@ public class Author
 
 	public void setName(String name)
 	{
+		this.name = name;
+	}
+
+	public void updateProfile(String code, String name)
+	{
+		this.code = code;
 		this.name = name;
 	}
 }

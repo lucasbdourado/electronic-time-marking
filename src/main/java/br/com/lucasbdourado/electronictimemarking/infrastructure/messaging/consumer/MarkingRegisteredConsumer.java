@@ -22,8 +22,8 @@ public class MarkingRegisteredConsumer
 	@RabbitListener(queues = MARKING_REGISTER_QUEUE)
 	public WorkDayResponse consume(TimeMarkRegisteredEvent event, Message message)
 	{
-		RegisterTimeMarkCommand command = new RegisterTimeMarkCommand(event.author(), event.type(),
-			event.registeredAt());
+		RegisterTimeMarkCommand command = new RegisterTimeMarkCommand(event.authorDiscordId(),
+			event.authorCode(), event.authorName(), event.type(), event.registeredAt());
 
 		WorkDayResponse response = dailyRegisterApplicationService.create(command);
 

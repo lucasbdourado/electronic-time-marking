@@ -1,12 +1,12 @@
 package br.com.lucasbdourado.electronictimemarking.infrastructure.scheduling;
 
-import br.com.lucasbdourado.electronictimemarking.infrastructure.messaging.producer.WorkDayReminderNotificationPublisher;
+import br.com.lucasbdourado.electronictimemarking.application.service.WorkDayReminderNotifier;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public record WorkDayReminderQuartzJob(WorkDayReminderNotificationPublisher notificationPublisher) implements Job
+public record WorkDayReminderQuartzJob(WorkDayReminderNotifier notifier) implements Job
 {
 	public static final String DISCORD_USER_ID = "discordUserId";
 
@@ -24,7 +24,7 @@ public record WorkDayReminderQuartzJob(WorkDayReminderNotificationPublisher noti
 		LOGGER.info("Work day reminder job fired. discordUserId={}, minutesBeforeExit={}",
 			maskDiscordUserId(discordUserId), minutesBeforeExit);
 
-		notificationPublisher.publish(discordUserId, reminderMessage(minutesBeforeExit));
+		notifier.notify(discordUserId, reminderMessage(minutesBeforeExit));
 	}
 
 	private String reminderMessage(int minutesBeforeExit)

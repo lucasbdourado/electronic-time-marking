@@ -1,11 +1,11 @@
 package br.com.lucasbdourado.electronictimemarking.application.usecase;
 
+import br.com.lucasbdourado.electronictimemarking.application.dto.CalculateWorkDayCommand;
 import br.com.lucasbdourado.electronictimemarking.application.dto.WorkDayResponse;
 import br.com.lucasbdourado.electronictimemarking.domain.service.WorkDayCalculator;
 import br.com.lucasbdourado.electronictimemarking.domain.service.WorkStatus;
 import br.com.lucasbdourado.electronictimemarking.domain.valueobject.WorkPeriod;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -20,11 +20,9 @@ public class CalculateWorkDayUseCase
 		this.calculator = calculator;
 	}
 
-	public WorkDayResponse process(LocalDate date, List<?> timeList)
+	public WorkDayResponse process(CalculateWorkDayCommand command)
 	{
-		List<LocalTime> times = parseTimes(timeList);
-
-		List<LocalTime> normalized = calculator.normalize(times);
+		List<LocalTime> normalized = calculator.normalize(command.times());
 
 		List<WorkPeriod> periods = calculator.buildPeriods(normalized);
 
@@ -40,7 +38,7 @@ public class CalculateWorkDayUseCase
 
 		WorkDayResponse response = new WorkDayResponse();
 
-		response.setDate(date);
+		response.setDate(command.date());
 		response.setTimes(normalized);
 		response.setWorkedMinutes(worked.toMinutes());
 		response.setRemainingMinutes(remaining.toMinutes());
@@ -49,25 +47,5 @@ public class CalculateWorkDayUseCase
 		response.setInvalid(invalid);
 
 		return response;
-	}
-
-	private List<LocalTime> parseTimes(List<?> timeList)
-	{
-		return timeList.stream().map(this::parseTime).toList();
-	}
-
-	private LocalTime parseTime(Object time)
-	{
-		if (time instanceof LocalTime localTime)
-		{
-			return localTime;
-		}
-
-		if (time instanceof String stringTime)
-		{
-			return LocalTime.parse(stringTime);
-		}
-
-		throw new IllegalArgumentException("Time must be a LocalTime or String");
 	}
 }

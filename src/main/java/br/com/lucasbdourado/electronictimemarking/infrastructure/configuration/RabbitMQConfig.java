@@ -59,8 +59,8 @@ public class RabbitMQConfig
 	}
 
 	@Bean
-	public Binding workDayReminderPreferenceChangedBinding(
-		Queue workDayReminderPreferenceChangedQueue, TopicExchange reminderEventsExchange)
+	public Binding workDayReminderPreferenceChangedBinding(Queue workDayReminderPreferenceChangedQueue,
+		TopicExchange reminderEventsExchange)
 	{
 		return BindingBuilder.bind(workDayReminderPreferenceChangedQueue).to(reminderEventsExchange)
 			.with(WORKDAY_REMINDER_PREFERENCE_CHANGED_ROUTING_KEY);
@@ -71,9 +71,9 @@ public class RabbitMQConfig
 	{
 		JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
 		DefaultClassMapper classMapper = new DefaultClassMapper();
-		classMapper.setIdClassMapping(Map.of(
-			"br.com.reminderbot.producer.WorkDayReminderPreferenceChangedEvent",
-			WorkDayReminderPreferenceChangedEvent.class));
+		classMapper.setIdClassMapping(
+			Map.of("br.com.reminderbot.producer.WorkDayReminderPreferenceChangedEvent",
+				WorkDayReminderPreferenceChangedEvent.class));
 		converter.setClassMapper(classMapper);
 		converter.setTypePrecedence(JacksonJavaTypeMapper.TypePrecedence.INFERRED);
 		converter.setAlwaysConvertToInferredType(true);
